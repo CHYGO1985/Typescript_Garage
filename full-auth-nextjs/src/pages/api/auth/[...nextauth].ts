@@ -1,4 +1,6 @@
 import NextAuth from 'next-auth'
+import { MongoDBAdapter } from '@next-auth/mongodb-adapter'
+import clientPromise from '@/lib/mongodb'
 import GoogleProvider from 'next-auth/providers/google'
 import GithubProvider from 'next-auth/providers/github'
 import Auth0Provider from 'next-auth/providers/auth0'
@@ -6,6 +8,7 @@ import TwitterProvider from 'next-auth/providers/twitter'
 import FacebookProvider from 'next-auth/providers/facebook'
 
 export default NextAuth({
+  adapter: MongoDBAdapter(clientPromise),
   secret: process.env.SECRET,
   providers: [
     // OAuth authentication providers
