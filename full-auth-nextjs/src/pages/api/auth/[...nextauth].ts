@@ -3,6 +3,7 @@ import GoogleProvider from 'next-auth/providers/google'
 import GithubProvider from 'next-auth/providers/github'
 import Auth0Provider from 'next-auth/providers/auth0'
 import TwitterProvider from 'next-auth/providers/twitter'
+import FacebookProvider from 'next-auth/providers/facebook'
 
 export default NextAuth({
   secret: process.env.SECRET,
@@ -26,6 +27,10 @@ export default NextAuth({
     TwitterProvider({
       clientId: process.env.TWITTER_CLIENT_ID as string,
       clientSecret: process.env.TWITTER_CLIENT_SECRET as string,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
   ],
 })
