@@ -37,7 +37,7 @@ export default NextAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
   ],
-  secret: process.env.SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt', // another one is 'database', for 'jwt', it will store session data in cookies
   },
