@@ -3,12 +3,15 @@ import Input from '../inputs/Inputs'
 import validator from 'validator'
 import { CiUser } from 'react-icons/ci'
 import { FiLock, FiMail } from 'react-icons/fi'
-import { useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { BsTelephone } from 'react-icons/bs'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import zxcvbn from 'zxcvbn'
+import axios from 'axios'
+import SlideButton from '../buttons/SlideButton'
 
 interface IRegisterFormProps {}
 
@@ -53,12 +56,21 @@ const RegisterForm: React.FunctionComponent<IRegisterFormProps> = (props) => {
     register,
     handleSubmit,
     watch, // watch the value
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
   })
 
-  const onSubmit = (data: any) => console.log(data)
+  const onSubmit: SubmitHandler<FormSchemaType> = async (values) => {
+    try {
+      const { data } = await axios.post('/api/auth/signup', { ...values })
+      reset()
+      toast.success(data.message)
+    } catch (error: any) {
+      toast.error(error.response?.data?.message)
+    }
+  }
 
   const validatePasswordStrength = () => {
     let password = watch().password
@@ -187,7 +199,14 @@ const RegisterForm: React.FunctionComponent<IRegisterFormProps> = (props) => {
           <p className='text-sm text-red-600 mt-1'>{errors?.accept?.message}</p>
         )}
       </div>
-      <button type='submit'>Submit</button>
+      {/* <button type='submit'>Submit</button> */}
+      <SlideButton
+        type='submit'
+        text='Sign up'
+        slide_text='Secure sign up'
+        icon={<FiLock />}
+        disabled={isSubmitting}
+      />
     </form>
   )
 }
