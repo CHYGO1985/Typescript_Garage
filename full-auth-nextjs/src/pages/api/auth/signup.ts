@@ -3,6 +3,9 @@ import validator from 'validator'
 import bcrypt from 'bcryptjs'
 import User from '@/components/models/User'
 import getMongodbInstance from '@/utils/connect-mongodb'
+import { createActivationToken } from '@/utils/tokens'
+import sendEmail from '@/utils/SendMail'
+import { activateTemplateEmail } from '@/emailTemplates/activate'
 
 export default async function signup(
   req: NextApiRequest,
@@ -43,6 +46,18 @@ export default async function signup(
       password: cryptedPassword,
     })
     await newuser.save()
+    const activationToken = createActivationToken({
+      id: newuser._id.toString(),
+    })
+    const url = `${process.env.NEXTAUTH_URL}/activate/${activationToken}`
+    await sendEmail(
+      newuser.email,
+      newuser.name,
+      '',
+      url,
+      'Activate your account - FullAuth',
+      activateTemplateEmail,
+    )
     res.status(200).json({
       message: 'Register success! Please activate your account to start.',
     })
