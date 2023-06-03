@@ -936,4 +936,4 @@ export const resetPasswordEmail = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
     </div>
   </body>
 </html>
-`;
+`
