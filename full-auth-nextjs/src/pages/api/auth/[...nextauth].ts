@@ -6,13 +6,46 @@ import GithubProvider from 'next-auth/providers/github'
 import Auth0Provider from 'next-auth/providers/auth0'
 import TwitterProvider from 'next-auth/providers/twitter'
 import FacebookProvider from 'next-auth/providers/facebook'
+import CredentialsProvider from 'next-auth/providers/credentials'
 import { JWT } from 'next-auth/jwt'
 import { AdapterUser } from 'next-auth/adapters'
+import bcrypt from 'bcrypt'
+
+import getMongodbInstance from '@/utils/connect-mongodb'
+import UserModel from '@/components/models/User'
 
 export default NextAuth({
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     // OAuth authentication providers
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: {
+          label: 'Name',
+          type: 'text',
+        },
+        password: {
+          label: 'Password',
+          type: 'password',
+        },
+      },
+      async authorize(credentials) {
+        await getMongodbInstance()
+        const user = await UserModel.findOne({ email: credentials!.email })
+        if (!user) {
+          throw new Error('Email is not registered.')
+        }
+        const isPasswordCorrect = await bcrypt.compare(
+          credentials!.password,
+          user.password,
+        )
+        if (!isPasswordCorrect) {
+          throw new Error('Password is incorrect.')
+        }
+        return user
+      },
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_ID as string,
       clientSecret: process.env.GOOGLE_SECRET as string,
@@ -40,6 +73,9 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt', // another one is 'database', for 'jwt', it will store session data in cookies
+  },
+  pages: {
+    signIn: '/auth',
   },
   callbacks: {
     async jwt({
